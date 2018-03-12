@@ -60,6 +60,7 @@ class TodoList extends Component{
             return res.json()
         })
         .then(newTodo =>{
+            console.log('NewTodo',newTodo);
             let updatedTodo = this.state.todos.concat(newTodo);
             this.setState({todos: updatedTodo});
             
@@ -70,7 +71,7 @@ class TodoList extends Component{
 
     deleteTodo = (id) =>{
         const deleteURL = APIURL + id;
-
+        
         fetch(deleteURL,{
             method: 'delete'
             
@@ -96,6 +97,46 @@ class TodoList extends Component{
             console.log(this.state);
             
         });
+    }   
+
+    toggleTodo = (todo) =>{
+        const patchURL = APIURL + todo._id;
+        
+        fetch(patchURL,{
+            method: 'PATCH',
+            headers: new Headers({
+                'Content-Type': 'application/json'
+
+            }),
+            body: JSON.stringify({
+                completed: !todo.completed
+            })
+        })
+        .then((res)=>{
+            if(!res.ok){
+                if(res.status >= 400 && res.status < 500){
+                    return res.json().then(data => {
+                        let err = {errorMsg: data.message};
+                        throw err;
+                    })
+                } else {
+                    let err = {errorMsg: 'Please try later !!!'}
+                    throw err;
+                }
+                
+            }
+            return res.json();
+        })
+        .then(newTodo =>{
+            console.log('NewTodo',newTodo);
+            let updatedTodo = this.state.todos.map((t)=>(
+                t._id === newTodo._id ? {...t, completed: !t.completed}: t
+            ));
+            this.setState({todos: updatedTodo});
+            
+            
+        });
+        
     }
 
     render(){
@@ -104,6 +145,7 @@ class TodoList extends Component{
                 key={todo._id} 
                 {...todo} 
                 onDeleted={() => this.deleteTodo(todo._id)}
+                onToggled={() => this.toggleTodo(todo)}
                 />
         ));
         // console.log(this.state);
