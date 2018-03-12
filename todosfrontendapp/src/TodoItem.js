@@ -5,7 +5,7 @@ const TodoItem = (props) =>(
         style={{
             textDecoration: props.completed ? 'line-through' : 'none'
         }}
-    >{props.text}</li>
+    >{props.text} <span onClick={props.onDeleted}> X </span></li>
 );
 
 export default TodoItem;

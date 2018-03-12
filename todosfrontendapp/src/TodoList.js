@@ -33,15 +33,84 @@ class TodoList extends Component{
         .then(todos => this.setState(todos));
     }
 
+    addTodo = (val) =>{
+        fetch(APIURL,{
+            method: 'post',
+            headers: new Headers({
+                'Content-Type': 'application/json'
+
+            }),
+            body: JSON.stringify({
+                text: val
+            })
+        })
+        .then((res)=>{
+            if(!res.ok){
+                if(res.status >= 400 && res.status < 500){
+                    return res.json().then(data => {
+                        let err = {errorMsg: data.message};
+                        throw err;
+                    })
+                } else {
+                    let err = {errorMsg: 'Please try later !!!'}
+                    throw err;
+                }
+                
+            }
+            return res.json()
+        })
+        .then(newTodo =>{
+            let updatedTodo = this.state.todos.concat(newTodo);
+            this.setState({todos: updatedTodo});
+            
+            
+        });
+       
+    }
+
+    deleteTodo = (id) =>{
+        const deleteURL = APIURL + id;
+
+        fetch(deleteURL,{
+            method: 'delete'
+            
+        })
+        .then((res)=>{
+            if(!res.ok){
+                if(res.status >= 400 && res.status < 500){
+                    return res.json().then(data => {
+                        let err = {errorMsg: data.message};
+                        throw err;
+                    })
+                } else {
+                    let err = {errorMsg: 'Please try later !!!'}
+                    throw err;
+                }
+                
+            }
+            return res.json()
+        })
+        .then(() =>{
+            let updatedTodo = this.state.todos.filter(todo => todo._id !== id);
+            this.setState({todos: updatedTodo});
+            console.log(this.state);
+            
+        });
+    }
+
     render(){
         const todos = this.state.todos.map(todo => (
-            <TodoItem key={todo._id} {...todo} />
+            <TodoItem 
+                key={todo._id} 
+                {...todo} 
+                onDeleted={() => this.deleteTodo(todo._id)}
+                />
         ));
         // console.log(this.state);
         return(
             <div>
                 <h1>Dinamo</h1>
-                <TodoForm/>
+                <TodoForm addedTodo={this.addTodo} />
                 <ul>
                     {todos}
                 </ul>
