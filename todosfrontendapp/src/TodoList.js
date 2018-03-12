@@ -1,4 +1,8 @@
 import React, { Component } from 'react';
+
+import TodoForm from './TodoForm';
+import TodoItem from './TodoItem';
+
 const APIURL ='/todos/';
 class TodoList extends Component{
     state = {
@@ -26,13 +30,22 @@ class TodoList extends Component{
             }
             return res.json()
         })
-        .then(todos => this.setState({todos}));
+        .then(todos => this.setState(todos));
     }
 
     render(){
-      
+        const todos = this.state.todos.map(todo => (
+            <TodoItem key={todo._id} {...todo} />
+        ));
+        // console.log(this.state);
         return(
-            <h1>Dinamo</h1>
+            <div>
+                <h1>Dinamo</h1>
+                <TodoForm/>
+                <ul>
+                    {todos}
+                </ul>
+            </div>
         )
         
     }
